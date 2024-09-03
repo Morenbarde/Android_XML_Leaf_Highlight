@@ -80,6 +80,25 @@ Boundary* find_leaf_bounds(tinyxml2::XMLNode* node) {
     return bound_list;
 }
 
+unsigned char get_color(int i){
+    unsigned char color;
+    switch(i%4){
+    case 0:
+        color = 180;
+        break;
+    case 1:
+        color = 180;
+        break;
+    case 2:
+        color = 0;
+        break;
+    default:
+        color = 255;
+        break;
+    }
+    return color;
+}
+
 int main(int argc, char *argv[]){
 
     std::string xml_path, png_path;
@@ -94,23 +113,85 @@ int main(int argc, char *argv[]){
         png_path = argv[2];
     } else {
         std::cout << "Usage: ./main path_to_files/filename_without_extension OR ./main path_to_xml/filename.xml path_to_png/filename.png" << std::endl;
-        return 1;
+        return 0;
     }
+
 
     tinyxml2::XMLDocument file;
     if(file.LoadFile(xml_path.c_str())){
-        std::cout << "Error Parsing File: " << xml_path << std::endl;
+        std::cout << "Error Parsing XML File: " << xml_path << std::endl;
         std::cout << "Parser Error: " << file.ErrorStr() << std::endl;
         std::cout << "Ending Program\n";
-        return 1;
+        return 0;
     }
 
     tinyxml2::XMLNode* root = file.FirstChild();
 
     Boundary* bound_list = find_leaf_bounds(root);
+    Boundary* current_bound;
 
-    while(bound_list){
-        std::cout << bound_list->x1 << ", " << bound_list->y1 << ", " << bound_list->x2 << ", " << bound_list->y2 << std::endl;
-        bound_list = bound_list->next;
+    current_bound = bound_list;
+    while(current_bound){
+        std::cout << current_bound->x1 << ", " << current_bound->y1 << ", " << current_bound->x2 << ", " << current_bound->y2 << std::endl;
+        current_bound = current_bound->next;
     }
+
+
+    std::vector<unsigned char> image;
+    unsigned width, height;
+
+    unsigned error = lodepng::decode(image, width, height, png_path);
+    if (error){
+        std::cout << "Error decoding png file: " << lodepng_error_text(error) << std::endl;
+        return 0;
+    }
+    
+    std::cout << width << ", " << height << std::endl;
+
+    int upper_left, upper_right, lower_left, lower_right;
+    current_bound = bound_list;
+
+    int count = 0;
+    while(current_bound){
+
+        for (int j = 0; j < 3; j++) {
+            //Outer for loop allows for adjusting the thickness of the lines drawn, j represents thickness
+            upper_left = (((current_bound->y1+j)*width) + (current_bound->x1+j))*4;
+            upper_right = (((current_bound->y1+j)*width) + (current_bound->x2-j))*4;
+            lower_left = (((current_bound->y2-j)*width) + (current_bound->x1+j))*4;
+            lower_right = (((current_bound->y2-j)*width) + (current_bound->x2-j))*4;
+
+            for (int i = upper_left; i < upper_right; i++){
+            image[i] = get_color(i);
+            }
+            for (int i = upper_left; i < lower_left; i += width*4){
+                image[i+0] = get_color(i+0);
+                image[i+1] = get_color(i+1);
+                image[i+2] = get_color(i+2);
+                image[i+3] = get_color(i+3);
+            }
+            for (int i = lower_left; i < lower_right; i++){
+                image[i] = get_color(i);
+            }
+            for (int i = upper_right; i < lower_right; i += width*4){
+                image[i+0] = get_color(i+0);
+                image[i+1] = get_color(i+1);
+                image[i+2] = get_color(i+2);
+                image[i+3] = get_color(i+3);
+            }
+        }
+        
+        count += 1;
+        current_bound = current_bound->next;
+    }
+
+    std::cout << count << std::endl;
+
+    error = lodepng::encode("test.png", image, width, height);
+    if (error){
+        std::cout << "Error encoding png file: " << lodepng_error_text(error) << std::endl;
+        return 0;
+    }
+
+    return 1;
 }
