@@ -1,6 +1,8 @@
 # Android_XML_Leaf_Highlight
 Solution for CSCI 535 Assignment 1
 
+This program takes xml files captured from the uiautomator framwork in Android, as well as a related png, and highlights the individual leaf-level components by drawing a yellow box around them and outputting the resulting png.
+
 Compilation: 
 
     g++ highlight_leaves.cpp tinyxml2.cpp lodepng.cpp -o highlight_leaves
