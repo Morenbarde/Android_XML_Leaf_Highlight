@@ -83,16 +83,16 @@ Boundary* find_leaf_bounds(tinyxml2::XMLNode* node) {
 unsigned char get_color(int i){
     unsigned char color;
     switch(i%4){
-    case 0:
+    case 0: //Red
         color = 180;
         break;
-    case 1:
+    case 1: //Green
         color = 180;
         break;
-    case 2:
+    case 2: //Blue
         color = 0;
         break;
-    default:
+    default: //Alpha
         color = 255;
         break;
     }
@@ -117,11 +117,11 @@ int main(int argc, char *argv[]){
     }
 
 
+    std::cout << "Parsing XML File: " << xml_path << std::endl;
+
     tinyxml2::XMLDocument file;
-    if(file.LoadFile(xml_path.c_str())){
-        std::cout << "Error Parsing XML File: " << xml_path << std::endl;
+    if(file.LoadFile(xml_path.c_str())){;
         std::cout << "Parser Error: " << file.ErrorStr() << std::endl;
-        std::cout << "Ending Program\n";
         return 0;
     }
 
@@ -130,12 +130,16 @@ int main(int argc, char *argv[]){
     Boundary* bound_list = find_leaf_bounds(root);
     Boundary* current_bound;
 
+    /*
     current_bound = bound_list;
     while(current_bound){
         std::cout << current_bound->x1 << ", " << current_bound->y1 << ", " << current_bound->x2 << ", " << current_bound->y2 << std::endl;
         current_bound = current_bound->next;
     }
+    */
 
+
+    std::cout << "Drawing new Image\n";
 
     std::vector<unsigned char> image;
     unsigned width, height;
@@ -146,12 +150,12 @@ int main(int argc, char *argv[]){
         return 0;
     }
     
-    std::cout << width << ", " << height << std::endl;
+    //std::cout << width << ", " << height << std::endl;
 
     int upper_left, upper_right, lower_left, lower_right;
     current_bound = bound_list;
 
-    int count = 0;
+    //int count = 0;
     while(current_bound){
 
         for (int j = 0; j < 3; j++) {
@@ -181,17 +185,25 @@ int main(int argc, char *argv[]){
             }
         }
         
-        count += 1;
+        //count += 1;
         current_bound = current_bound->next;
     }
 
-    std::cout << count << std::endl;
+    //std::cout << count << std::endl;
 
-    error = lodepng::encode("test.png", image, width, height);
+    // Gets the name of the png file without the path to it
+    int pos = 0;
+    int next_pos = png_path.find("/", pos);
+    while (next_pos >= 0){
+        pos = next_pos+1;
+        next_pos = png_path.find("/", pos);
+    }
+
+    error = lodepng::encode("Results/modified_" + png_path.substr(pos), image, width, height);
     if (error){
         std::cout << "Error encoding png file: " << lodepng_error_text(error) << std::endl;
         return 0;
     }
 
-    return 1;
+    return 0;
 }
