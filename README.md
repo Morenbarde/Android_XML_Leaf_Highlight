@@ -18,3 +18,5 @@ If the xml and png files are in different directories, then they can also be pas
 
 If the file names are correct and the xml file is valid, the program should run to completion.
 The resulting png will be placed in the results folder in the repository, bearing the same name as the png file put in, but with "modified_" tagged to the front
+
+Note: Lodepng (lodepng.h, lodepng.cpp) and TinyXML (tinyxml2.h, tinyxml2.cpp) are all libraries I found online, and do not belong to me.
