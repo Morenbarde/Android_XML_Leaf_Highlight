@@ -2,7 +2,8 @@
 Solution for CSCI 535 Assignment 1
 
 Compilation: 
-g++ highlight_leaves.cpp tinyxml2.cpp lodepng.cpp -o highlight_leaves
+
+    g++ highlight_leaves.cpp tinyxml2.cpp lodepng.cpp -o highlight_leaves
 
 Running:
 There are two ways to run the program:
